@@ -299,6 +299,7 @@ export default function Registration() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   const [fullnameError, setFullnameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -330,6 +331,8 @@ export default function Registration() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [showTermsPanel, setShowTermsPanel] = useState(false);
 
   // Fullname validation
   const validateFullname = (value) => {
@@ -585,13 +588,59 @@ export default function Registration() {
   const toggleShowConfirmPassword = () =>
     setShowConfirmPassword((prev) => !prev);
 
+  // Handle form submission
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    // Ensure all fields are valid and terms are accepted before submission
+    if (
+      isFullnameValid &&
+      isEmailValid &&
+      isUsernameValid &&
+      isPasswordValid &&
+      isPasswordMatched &&
+      isTermsAccepted
+    ) {
+      // Proceed with form submission
+      alert("Form submitted successfully!");
+    } else {
+      // Show errors if any field is invalid or terms are not accepted
+      if (!isFullnameValid) setIsFullnameTouched(true);
+      if (!isEmailValid) setIsEmailTouched(true);
+      if (!isUsernameValid) setIsUsernameTouched(true);
+      if (!isPasswordValid || !isPasswordMatched) {
+        setIsPasswordTouched(true);
+        setIsConfirmPasswordTouched(true);
+      }
+      if (!isTermsAccepted) {
+        setShowTermsPanel(true); // Show terms panel if not accepted
+      }
+    }
+  };
+
+  // Handle terms and conditions checkbox click
+  const handleTermsCheckboxClick = () => {
+    if (!isTermsAccepted) {
+      setShowTermsPanel(true); // Show the terms and conditions panel
+    }
+  };
+
+  // Handle terms acceptance
+  const handleTermsAccepted = () => {
+    setIsTermsAccepted(true);
+    setShowTermsPanel(false); // Hide the terms and conditions panel
+  };
+
   return (
     <div className="screen">
       <Navbar />
       <div className="web-container w-full h-full registration flex flex-col items-center">
         <p className="text-3xl font-semibold">Welcome to HealthCare system!</p>
         <p className="text-[16px]">Please register to join with us.</p>
-        <form className="flex flex-col items-center mt-10">
+        <form
+          className="flex flex-col items-center mt-10"
+          onSubmit={handleFormSubmit}
+        >
           {/* Full Name Field */}
           <div
             className={`registration-input ${
@@ -824,14 +873,28 @@ export default function Registration() {
 
           {/* Terms and condition */}
           <div className="form-registration-terms">
-            <input type="checkbox" name="terms" id="terms" required />
+            <input
+              type="checkbox"
+              name="terms"
+              id="terms"
+              onClick={handleTermsCheckboxClick}
+              checked={isTermsAccepted}
+              readOnly
+            />
             <label htmlFor="terms">
               I have read and accept all the terms and conditions.
             </label>
-            <div className="registration-terms-panel">
+            <div
+              className={`registration-terms-panel ${
+                showTermsPanel ? "show" : ""
+              }`}
+            >
               <div className="terms-panel-top">
                 <h1>Terms and conditions</h1>
-                <IoClose className="terms-close-icon" />
+                <IoClose
+                  className="terms-close-icon"
+                  onClick={() => setShowTermsPanel(false)}
+                />
               </div>
               <div className="terms-panel-middle">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum
@@ -841,9 +904,10 @@ export default function Registration() {
               </div>
               <div className="terms-panel-bottom">
                 <input
-                  type="submit"
+                  type="button"
                   value="I accepted"
                   className="registrationButton-terms"
+                  onClick={handleTermsAccepted}
                 />
               </div>
             </div>
