@@ -1,0 +1,213 @@
+.login-input {
+    width: 400px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.login-input-password {
+    margin-top: 30px;
+}
+
+.login-inputBox {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border: solid 2px #B2BEB5;
+    border-radius: 15px;
+    padding: 0px 45px 0px 50px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: 0.6s;
+    font-family: var(--font-Poppins);
+    outline: none;
+}
+
+.login-input-label {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    padding: 0px 10px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    font-weight: 600;
+    transition: transform 0.6s;
+    color: #696969;
+}
+
+.login-icon-left {
+    position: absolute;
+    margin-left: 15px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #696969;
+}
+
+.login-inputBox:focus {
+    border: solid 2px black;
+    box-shadow: 0px 12px 28px 0px rgba(0, 0, 0, 0.2),
+        0px 2px 4px 0px rgba(0, 0, 0, 0.1),
+        0px 0px 0px 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.login-inputBox:valid {
+    border: solid 2px black;
+}
+
+.login-inputBox:focus~.login-input-label,
+.login-inputBox:valid~.login-input-label {
+    transform: translateY(-150%);
+    background-color: white;
+    color: black;
+}
+
+.login-inputBox:focus~.login-icon-left,
+.login-inputBox:valid~.login-icon-left {
+    color: black;
+}
+
+.icon-exclamation {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e74c3c;
+    position: absolute;
+    right: -25px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.icon-check-circle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2ecc71;
+    position: absolute;
+    right: -25px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.login-form-error {
+    position: absolute;
+    top: 95%;
+    margin-left: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e74c3c;
+    opacity: 000;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.login-input.error .login-form-error {
+    opacity: 100;
+}
+
+.login-pass-show {
+    position: absolute;
+    right: 0;
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 10px;
+    cursor: pointer;
+    color: #696969;
+}
+
+.login-inputBox:focus~.login-pass-show,
+.login-inputBox:valid~.login-pass-show {
+    color: black;
+}
+
+.form-login-checkbox-forgot {
+    width: 95%;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.login-form-checkbox {
+    display: flex;
+    align-items: center;
+
+    input {
+        margin-right: 8px;
+        color: #B2BEB5;
+        transition: 0.6s;
+    }
+
+    label {
+        color: #696969;
+        font-family: 12px;
+        font-weight: 600;
+        font-family: var(--font-Poppins);
+        transition: 0.6s;
+        cursor: pointer;
+
+        &:hover {
+            color: black;
+        }
+    }
+}
+
+.forgot-link {
+    color: #696969;
+    font-family: 12px;
+    font-weight: 600;
+    font-family: var(--font-Poppins);
+    cursor: pointer;
+    transition: 0.6s;
+    text-decoration: none;
+
+    &:hover {
+        color: black;
+    }
+}
+
+.form-login-button {
+    margin-top: 40px;
+}
+
+.loginButton {
+    background: none;
+    border: solid 2px #B2BEB5;
+    border-radius: 30px;
+    padding: 10px 100px;
+    font-family: var(--font-Poppins);
+    font-size: 20px;
+    font-weight: 500;
+    color: #696969;
+    transition: 0.6s;
+    cursor: pointer;
+}
+
+.loginButton:hover {
+    border: solid 2px black;
+    box-shadow: 0px 12px 28px 0px rgba(0, 0, 0, 0.2),
+        0px 2px 4px 0px rgba(0, 0, 0, 0.1),
+        0px 0px 0px 1px rgba(255, 255, 255, 0.05) inset;
+    color: black;
+}
+
+.login-form-register-link {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #696969;
+    font-weight: 600;
+
+
+    .login-register {
+        font-size: 14px;
+        color: #696969;
+        font-weight: 600;
+        transition: 0.6s;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+            color: black;
+        }
+    }
+}
