@@ -1,13 +1,13 @@
 import React from "react";
-import "./style.css";
 import { Link, useLocation } from "react-router-dom";
+import "./style.css";
 
 const Newuser = () => {
   // Accessing state from the redirect
   const location = useLocation();
-  const { username, userID } = location.state || {
+  const { username, userId } = location.state || {
     username: "DefaultName",
-    userID: "0000",
+    userId: "0000",
   };
 
   const copyToClipboard = (text) => {
@@ -109,10 +109,10 @@ const Newuser = () => {
           </div>
           <div className="new-user-id new-user-name flex flex-row items-center gap-2 justify-center">
             <label htmlFor="new-user-id">Your userID is:</label>
-            <span id="new-user-id">{userID}</span>
+            <span id="new-user-id">{userId}</span>
             <i
               className="fa-regular fa-copy text-gray-500 text-[13px] hover:text-black duration-500"
-              onClick={() => copyToClipboard(userID)}
+              onClick={() => copyToClipboard(userId)}
               style={{ cursor: "pointer" }}
             ></i>
           </div>
@@ -120,8 +120,7 @@ const Newuser = () => {
         <div className="new-user-redirect flex items-center gap-10 my-8">
           <Link
             to="/"
-            className="border-2 px-10 py-3 border-gray-400 rounded-md text-gray-500 font-semibold hover:bg-gray-400 hover:text-white duration-500 shadow-md
-          "
+            className="border-2 px-10 py-3 border-gray-400 rounded-md text-gray-500 font-semibold hover:bg-gray-400 hover:text-white duration-500 shadow-md"
           >
             Visit homepage
           </Link>
