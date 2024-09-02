@@ -1,10 +1,16 @@
+.registration-input-group {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
 .registration-input {
     width: 450px;
     height: 50px;
     display: flex;
     align-items: center;
     position: relative;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
 }
 
 .registration-inputBox {
@@ -32,6 +38,7 @@
     font-weight: 600;
     transition: transform 0.6s;
     color: #696969;
+    background-color: white;
 }
 
 .registration-icon-left {
@@ -374,4 +381,45 @@
             color: black;
         }
     }
+}
+
+.registration-selectBox {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border: solid 2px #B2BEB5;
+    border-radius: 15px;
+    padding: 0px 45px 0px 50px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: 0.6s;
+    font-family: var(--font-Poppins);
+    outline: none;
+    pointer-events: all;
+    background: none;
+    cursor: pointer;
+}
+
+.registration-selectBox:focus {
+    border: solid 2px black;
+    box-shadow: 0px 12px 28px 0px rgba(0, 0, 0, 0.2),
+        0px 2px 4px 0px rgba(0, 0, 0, 0.1),
+        0px 0px 0px 1px rgba(255, 255, 255, 0.05) inset;
+    outline: none;
+}
+
+.registration-selectBox:valid {
+    border: solid 2px black;
+}
+
+.registration-selectBox:focus~.registration-input-label,
+.registration-selectBox:valid~.registration-input-label {
+    transform: translateY(-150%);
+    background-color: white;
+    color: black;
+}
+
+.registration-selectBox:focus~.registration-icon-left,
+.registration-selectBox:valid~.registration-icon-left {
+    color: black;
 }

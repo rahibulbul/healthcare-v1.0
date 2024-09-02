@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./ScrollToTop";
+import PrivateRoute from "./components/PrivateRoute";
 
 // Main Page
 import Home from "./pages/public/home/Home";
@@ -18,6 +14,16 @@ import Navbar from "./components/dashnavbar/Navbar";
 // Employee Dashboard
 import EmployeeDashboard from "./pages/dashboard/employee/home/Home";
 import EmployeeInsurance from "./pages/dashboard/employee/insurance/insurance";
+
+// Patient Dashboard
+import PatientDashboard from "./pages/dashboard/patient/home/Home";
+
+// Doctor Dashboard
+import DoctorDashboard from "./pages/dashboard/doctor/home/Home";
+
+// Agent Dashboard
+import AgentDashboard from "./pages/dashboard/agent/home/Home";
+
 // Layout Components
 const MainLayout = ({ children }) => (
   <>
@@ -105,27 +111,40 @@ const AppRoutes = () => (
       <Route
         path="/employeedashboard/*"
         element={
-          <DashboardLayout>
-            <Routes>
-              <Route index element={<EmployeeDashboard />} />
-              <Route path="insurance" element={<EmployeeInsurance />} />
-              {/* <Route path="newinsurance" element={<NewInsurance />} />
-              <Route path="insurancecategory" element={<InsuranceCategory />} />
-              <Route path="insurancerecord" element={<InsuranceRecord />} />
-              <Route path="manageinsurance" element={<ManageInsurance />} />
-              <Route path="patientlist" element={<PatientList />} />
-              <Route path="managepatient" element={<ManagePatient />} />
-              <Route path="medicalrecord" element={<MedicalRecord />} />
-              <Route path="doctorlist" element={<DoctorList />} />
-              <Route path="managedoctor" element={<ManageDoctor />} /> */}
-            </Routes>
-          </DashboardLayout>
+          <PrivateRoute>
+            <DashboardLayout>
+              <Routes>
+                <Route index element={<EmployeeDashboard />} />
+                <Route path="insurance" element={<EmployeeInsurance />} />
+                {/* Additional routes can be added here */}
+              </Routes>
+            </DashboardLayout>
+          </PrivateRoute>
         }
       />
-
       <Route
-        path="/userdashboard/*"
-        element={<DashboardLayout>{/* <UserDashboard /> */}</DashboardLayout>}
+        path="/patientdashboard/*"
+        element={
+          <PrivateRoute>
+            <DashboardLayout>{<PatientDashboard />}</DashboardLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/doctordashboard/*"
+        element={
+          <PrivateRoute>
+            <DashboardLayout>{<DoctorDashboard />}</DashboardLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/agentdashboard/*"
+        element={
+          <PrivateRoute>
+            <DashboardLayout>{<AgentDashboard />}</DashboardLayout>
+          </PrivateRoute>
+        }
       />
     </Routes>
   </Router>

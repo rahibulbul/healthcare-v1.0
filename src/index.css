@@ -19,10 +19,10 @@
 }
 
 .web-container {
-    margin: auto;
-    max-width: 1440px;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 30px 150px 0px 150px;
     height: 100%;
-    margin-top: 20px;
 }
 
 .font-hand {

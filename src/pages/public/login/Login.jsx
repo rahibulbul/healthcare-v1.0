@@ -4,6 +4,15 @@ import { FiUser } from "react-icons/fi";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoLockClosedOutline, IoEye, IoEyeOff } from "react-icons/io5";
+import {
+  getDatabase,
+  ref,
+  get,
+  query,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
+import Toast from "../../../components/toast/Toast";
 import "./style.css";
 
 export default function Login() {
@@ -11,7 +20,93 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ username: false, password: false });
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
   const navigate = useNavigate();
+
+  const showToast = (type, message) => {
+    setToastType(type);
+    setToastMessage(message);
+    setToastVisible(true);
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 3000);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const db = getDatabase();
+    const userTypes = ["patients", "doctors", "agents", "employees"];
+    let userData = null;
+
+    if (!username) {
+      setErrors((prev) => ({ ...prev, username: true }));
+      document.getElementById("username").focus();
+    } else if (!password) {
+      setErrors((prev) => ({ ...prev, password: true }));
+      document.getElementById("password").focus();
+    } else {
+      try {
+        for (const userType of userTypes) {
+          const userQuery = query(
+            ref(db, userType),
+            orderByChild("username"),
+            equalTo(username)
+          );
+          const snapshot = await get(userQuery);
+
+          if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+              const data = childSnapshot.val();
+              if (data.password === password) {
+                userData = { ...data, userType };
+              }
+            });
+
+            if (userData) break; // Exit loop if user is found
+          }
+        }
+
+        if (userData) {
+          // Save user data in session storage
+          sessionStorage.setItem("userData", JSON.stringify(userData));
+
+          showToast("success", "Login successful, Redirecting ...");
+
+          setTimeout(() => {
+            switch (userData.userType) {
+              case "employees":
+                navigate("/employeedashboard");
+                break;
+              case "patients":
+                navigate("/patientdashboard");
+                break;
+              case "doctors":
+                navigate("/doctordashboard");
+                break;
+              case "agents":
+                navigate("/agentdashboard");
+                break;
+              default:
+                showToast("error", "Unknown user type.");
+                break;
+            }
+          }, 1000); // Add a small delay
+        } else {
+          console.log("Authentication failed. Incorrect username or password.");
+          showToast(
+            "warning",
+            "Incorrect username or password. Please try again."
+          );
+          setErrors((prev) => ({ ...prev, password: true }));
+        }
+      } catch (error) {
+        console.error("Error during login:", error.message);
+        showToast("error", "Login failed. Please try again.");
+      }
+    }
+  };
 
   const handleBlur = (field) => {
     if (field === "username" && !username) {
@@ -40,20 +135,6 @@ export default function Login() {
           .getElementById("password")
           .parentElement.classList.remove("error");
       }
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!username) {
-      setErrors((prev) => ({ ...prev, username: true }));
-      document.getElementById("username").focus();
-    } else if (!password) {
-      setErrors((prev) => ({ ...prev, password: true }));
-      document.getElementById("password").focus();
-    } else {
-      // Assuming authentication is successful
-      navigate("/dashboard");
     }
   };
 
@@ -92,9 +173,7 @@ export default function Login() {
               Enter your username
             </label>
             {errors.username && (
-              <span className="login-form-error">
-                Username can not be empty
-              </span>
+              <span className="login-form-error">Username cannot be empty</span>
             )}
           </div>
           <div className="login-input login-input-password">
@@ -129,9 +208,7 @@ export default function Login() {
               Enter your password
             </label>
             {errors.password && (
-              <span className="login-form-error">
-                Password can not be empty
-              </span>
+              <span className="login-form-error">Password cannot be empty</span>
             )}
           </div>
           <div className="form-login-checkbox-forgot">
@@ -140,9 +217,9 @@ export default function Login() {
               <label htmlFor="checkbox">Remember Me</label>
             </div>
             <div className="login-form-forgot">
-              <a href="#" className="forgot-link">
+              <Link to="#" className="forgot-link">
                 Forgot password?
-              </a>
+              </Link>
             </div>
           </div>
           <div className="form-login-button">
@@ -181,11 +258,18 @@ export default function Login() {
           <div className="login-form-register-link">
             <span>Don not have account?</span>
             <Link to="/registration" className="login-register">
-              Click here to registration
+              Click here to register
             </Link>
           </div>
         </form>
       </div>
+      {toastVisible && (
+        <Toast
+          type={toastType}
+          message={toastMessage}
+          onClose={() => setToastVisible(false)}
+        />
+      )}
     </div>
   );
 }
