@@ -11,7 +11,7 @@ import ScrollToTop from "./ScrollToTop";
 import Home from "./pages/public/home/Home";
 import Login from "./pages/public/login/Login";
 import Registration from "./pages/public/registration/Registration";
-
+import Newuser from "./pages/public/newuser/Newuser";
 // Components
 import Navbar from "./components/dashnavbar/Navbar";
 
@@ -79,6 +79,10 @@ const AppRoutes = () => (
       <Route
         path="/registration"
         element={<NoFooterLayout>{<Registration />}</NoFooterLayout>}
+      />
+      <Route
+        path="/newuser"
+        element={<NoFooterLayout>{<Newuser />}</NoFooterLayout>}
       />
       <Route
         path="/forgot-password"

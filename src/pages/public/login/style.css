@@ -212,3 +212,46 @@
         }
     }
 }
+
+.login-with-google {
+    margin-top: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-with-google-or {
+    margin-bottom: 20px;
+    font-size: 25px;
+    color: #B2BEB5;
+}
+
+.loginButtonGoogle {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: solid 2px #B2BEB5;
+    border-radius: 30px;
+    padding: 10px 80px;
+    font-family: var(--font-Poppins);
+    font-size: 20px;
+    font-weight: 500;
+    color: #696969;
+    transition: 0.6s;
+    cursor: pointer;
+
+    &:hover {
+        border: solid 2px black;
+        box-shadow: 0px 12px 28px 0px rgba(0, 0, 0, 0.2),
+            0px 2px 4px 0px rgba(0, 0, 0, 0.1),
+            0px 0px 0px 1px rgba(255, 255, 255, 0.05) inset;
+        color: black;
+    }
+}
+
+.google-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
