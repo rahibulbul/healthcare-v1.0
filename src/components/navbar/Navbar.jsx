@@ -37,41 +37,36 @@ const Navbar = () => {
             <div className="ml-4 flex items-center space-x-10">
               <Link
                 to="/"
-                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-                  isActive("/") ? "text-white bg-black" : ""
-                }`}
+                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/") ? "text-white bg-black" : ""
+                  }`}
               >
                 Home
               </Link>
               <Link
                 to="/about"
-                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-                  isActive("/about") ? "text-white bg-black" : ""
-                }`}
+                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/about") ? "text-white bg-black" : ""
+                  }`}
               >
                 About
               </Link>
               <Link
                 to="/services"
-                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-                  isActive("/services") ? "text-white bg-black" : ""
-                }`}
+                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/services") ? "text-white bg-black" : ""
+                  }`}
               >
                 Services
               </Link>
               <Link
                 to="/contact"
-                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-                  isActive("/contact") ? "text-white bg-black" : ""
-                }`}
+                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/contact") ? "text-white bg-black" : ""
+                  }`}
               >
                 Contact
               </Link>
               <Link
                 to="/login"
-                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-                  isActive("/login") ? "text-white bg-black" : ""
-                }`}
+                className={`text-gray-500 font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/login") ? "text-white bg-black" : ""
+                  }`}
               >
                 Login
               </Link>
@@ -118,48 +113,42 @@ const Navbar = () => {
         </div>
       </div>
       <div
-        className={`md:hidden overflow-hidden transition-all duration-500 ease ${
-          isClick ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`md:hidden overflow-hidden transition-all duration-500 ease ${isClick ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         <div className="px-10 pt-2 pb-3 space-y-2 sm:px-3">
           <Link
             to="/"
-            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-              isActive("/") ? "text-white bg-black" : ""
-            }`}
+            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/") ? "text-white bg-black" : ""
+              }`}
           >
             Home
           </Link>
           <Link
             to="/about"
-            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-              isActive("/about") ? "text-white bg-black" : ""
-            }`}
+            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/about") ? "text-white bg-black" : ""
+              }`}
           >
             About
           </Link>
           <Link
             to="/services"
-            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-              isActive("/services") ? "text-white bg-black" : ""
-            }`}
+            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/services") ? "text-white bg-black" : ""
+              }`}
           >
             Services
           </Link>
           <Link
             to="/contact"
-            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-              isActive("/contact") ? "text-white bg-black" : ""
-            }`}
+            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/contact") ? "text-white bg-black" : ""
+              }`}
           >
             Contact
           </Link>
           <Link
             to="/login"
-            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${
-              isActive("/login") ? "text-white bg-black" : ""
-            }`}
+            className={`text-gray-500 block font-semibold hover:text-white hover:bg-black duration-500 rounded-lg p-2 ${isActive("/login") ? "text-white bg-black" : ""
+              }`}
           >
             Login
           </Link>

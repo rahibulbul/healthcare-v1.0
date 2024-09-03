@@ -15,7 +15,7 @@ import Navbar from "./components/navbar/Navbar";
 import EmployeeDashboard from "./pages/dashboard/employee/home/Home";
 import EmployeeInsurance from "./pages/dashboard/employee/insurance/insurance";
 import EmployeeNavbar from "./components/dashnavbar/employee/Navbar";
-
+import EmployeeSidebar from "./components/dashsidebar/employee/Sidebar";
 // Patient Dashboard
 import PatientDashboard from "./pages/dashboard/patient/home/Home";
 
@@ -47,9 +47,26 @@ const DashboardLayout = ({ children }) => (
   <>
     <ScrollToTop />
     <EmployeeNavbar />
+    <EmployeeSidebar />
     {children}
   </>
 );
+const EmployeeDashboardLayout = ({ children }) => {
+  return (
+    <>
+      <ScrollToTop />
+      <div className="flex flex-col w-full h-auto">
+        <EmployeeNavbar />
+        <div className="flex flex-row w-full gap-2 h-aut0">
+          <div className=" flex w-15 md:w-72 max-w-[300px] h-[calc(100vh_-_60px)]">
+            <EmployeeSidebar />
+          </div>
+          <div className="flex-1 h-[calc(100vh_-_60px)]">{children}</div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const AppRoutes = () => (
   <Router>
@@ -114,13 +131,13 @@ const AppRoutes = () => (
         path="/employeedashboard/*"
         element={
           <PrivateRoute>
-            <DashboardLayout>
+            <EmployeeDashboardLayout>
               <Routes>
                 <Route index element={<EmployeeDashboard />} />
                 <Route path="insurance" element={<EmployeeInsurance />} />
                 {/* Additional routes can be added here */}
               </Routes>
-            </DashboardLayout>
+            </EmployeeDashboardLayout>
           </PrivateRoute>
         }
       />

@@ -293,7 +293,7 @@ const EmployeeNavbar = () => {
               <div className="h-10 border-t-2">
                 <Link
                   to="/"
-                  className="flex items-center justify-center w-full h-full text-lg font-semibold text-gray-600 hover:text-black duration-500"
+                  className="flex items-center justify-center w-full h-full text-lg font-semibold text-gray-500 hover:text-gray-700 hover:bg-slate-200 duration-500"
                 >
                   All Notifications
                 </Link>
@@ -325,28 +325,28 @@ const EmployeeNavbar = () => {
               </div>
               <div className="flex flex-col mt-1">
                 <ul>
-                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                  <li className="cursor-pointer hover:bg-slate-300">
                     <Link
                       to="#"
-                      className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                      className="flex flex-row items-center p-3 gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
                       <i className="ph ph-gear text-lg"></i>Profile Settings
                     </Link>
                   </li>
-                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                  <li className="cursor-pointer hover:bg-slate-300">
                     <Link
                       to="#"
-                      className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                      className="flex flex-row items-center gap-2 p-3 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
                       <i className="ph ph-shield-plus text-lg"></i>Security and
                       privacy
                     </Link>
                   </li>
-                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                  <li className="cursor-pointer hover:bg-slate-300">
                     <Link
                       to="#"
                       onClick={handleLogout}
-                      className="flex flex-row items-center gap-2 text-basee font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                      className="flex flex-row items-center gap-2 p-3 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
                       <i className="bx bx-log-out-circle text-lg"></i>Log out
                     </Link>
