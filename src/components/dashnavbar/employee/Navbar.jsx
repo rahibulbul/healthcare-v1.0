@@ -1,212 +1,404 @@
-// import React from "react";
-// import "./style.css";
-// import {
-//   FiUser,
-//   FiBell,
-//   FiBellOff,
-//   FiCheckSquare,
-//   FiTrash2,
-// } from "react-icons/fi";
-// import { MdOutlineHealthAndSafety } from "react-icons/md";
-// import { HiDotsVertical } from "react-icons/hi";
-
-// const EmployeeNavbar = () => {
-//   return (
-//     <header className="empdash-header">
-//       <div className="empdash-header-left">
-//         <MdOutlineHealthAndSafety className="text-3xl text-gray-600 hover:text-black duration-500" />
-//         <h2 className="empdash-header-title text-3xl font-semibold text-gray-600 cursor-pointer hover:text-black duration-500">
-//           HealthCare
-//         </h2>
-//       </div>
-//       <div className="empdash-header-right">
-//         <div className="empdash-header-right-1">
-//           <FiBell className="empdash-header-right-icon" />
-//           <div className="empdash-bell-panel">
-//             <div className="empdash-bell-panel-top">
-//               <span>Notification</span>
-//               <HiDotsVertical className="empdash-bell-panel-controller" />
-//               <div className="empdash-bell-panel-controller-panel">
-//                 <span>
-//                   <FiBellOff /> Turn off notification
-//                 </span>
-//                 <span>
-//                   <FiCheckSquare /> Mark all read
-//                 </span>
-//                 <span>
-//                   <FiTrash2 /> Remove all notification
-//                 </span>
-//               </div>
-//             </div>
-//             <div className="empdash-bell-panel-middle">
-//               <div className="empdash-bell-panel-middle-body">
-//                 <div className="empdash-notify-title">
-//                   <span>You got a mail</span>
-//                   <HiDotsVertical className="empdash-notify-title-control" />
-//                   <div className="empdash-notify-title-control-panel">
-//                     <span>
-//                       <FiCheckSquare /> Mark all read
-//                     </span>
-//                     <span>
-//                       <FiTrash2 /> Remove all notification
-//                     </span>
-//                   </div>
-//                 </div>
-//                 <div className="empdash-notify-body">You got a mail</div>
-//                 <div className="empdash-notify-timestamp">
-//                   <span className="empdash-notify-date">date</span>
-//                   <span className="empdash-notify-time">time</span>
-//                 </div>
-//               </div>
-//             </div>
-//             <div className="empdash-bell-panel-bottom">
-//               <span>Notification</span>
-//             </div>
-//           </div>
-//         </div>
-//         <div className="empdash-header-right-2">
-//           <FiUser className="empdash-header-right-icon" />
-//         </div>
-//       </div>
-//     </header>
-//   );
-// };
-
-// export default EmployeeNavbar;
 import React, { useState, useEffect, useRef } from "react";
-import "./style.css";
-import {
-  FiUser,
-  FiBell,
-  FiBellOff,
-  FiCheckSquare,
-  FiTrash2,
-} from "react-icons/fi";
-import { MdOutlineHealthAndSafety } from "react-icons/md";
-import { HiDotsVertical } from "react-icons/hi";
+import { Link, useNavigate } from "react-router-dom";
+import { database } from "../../../lib/firebaseConfig";
+import { ref, onValue, update, remove } from "firebase/database";
+import Toast from "../../../components/toast/Toast";
 
 const EmployeeNavbar = () => {
-  const [bellPanelOpen, setBellPanelOpen] = useState(false);
-  const [controllerPanelOpen, setControllerPanelOpen] = useState(false);
-  const [notifyTitleControlPanelOpen, setNotifyTitleControlPanelOpen] =
-    useState(false);
+  const [isBellPanelVisible, setIsBellPanelVisible] = useState(false);
+  const [isUserPanelVisible, setIsUserPanelVisible] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [activeContextMenu, setActiveContextMenu] = useState(null);
 
   const bellPanelRef = useRef(null);
-  const controllerPanelRef = useRef(null);
-  const notifyTitleControlPanelRef = useRef(null);
+  const bellIconRef = useRef(null);
+  const userPanelRef = useRef(null);
+  const userIconRef = useRef(null);
 
-  // Function to handle clicking outside of the panels
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastType, setToastType] = useState("success");
+  const [toastMessage, setToastMessage] = useState("This is a toast message!");
+
+  const showToast = (type, message) => {
+    setToastType(type);
+    setToastMessage(message);
+    setToastVisible(true);
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 2000);
+  };
+
+  console.log("EmployeeNavbar component is rendering");
+
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        bellPanelRef.current &&
-        !bellPanelRef.current.contains(event.target)
-      ) {
-        setBellPanelOpen(false);
-        setControllerPanelOpen(false);
-        setNotifyTitleControlPanelOpen(false);
-      } else if (
-        controllerPanelRef.current &&
-        !controllerPanelRef.current.contains(event.target)
-      ) {
-        setControllerPanelOpen(false);
-      } else if (
-        notifyTitleControlPanelRef.current &&
-        !notifyTitleControlPanelRef.current.contains(event.target)
-      ) {
-        setNotifyTitleControlPanelOpen(false);
+    console.log("Setting up Firebase listener");
+    const notificationsRef = ref(database, "dummynotifications");
+    const unsubscribe = onValue(
+      notificationsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        console.log("Fetched notifications: ", data);
+        if (data) {
+          const notificationsArray = Object.entries(data).flatMap(
+            ([parentKey, value]) =>
+              Object.entries(value).map(([id, notification]) => ({
+                parentKey, // Store parent key to reference correct path
+                id,
+                ...notification,
+              }))
+          );
+          console.log("Parsed notifications array: ", notificationsArray);
+          setNotifications(notificationsArray);
+        } else {
+          setNotifications([]);
+        }
+      },
+      (error) => {
+        console.error("Error fetching notifications:", error);
+        showToast("error", "Failed to fetch notifications.");
       }
-    }
+    );
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => unsubscribe(); // Clean up the listener on unmount
   }, []);
 
+  const toggleBellPanel = () => {
+    console.log("Bell panel toggled");
+    setIsBellPanelVisible((prev) => !prev);
+    setIsUserPanelVisible(false);
+  };
+
+  const toggleUserPanel = () => {
+    console.log("User panel toggled");
+    setIsUserPanelVisible((prev) => !prev);
+    setIsBellPanelVisible(false);
+  };
+  const handleClickOutside = (event) => {
+    // Stop the event from propagating when interacting with the context menu
+    if (
+      bellPanelRef.current &&
+      !bellPanelRef.current.contains(event.target) &&
+      !bellIconRef.current.contains(event.target)
+    ) {
+      setIsBellPanelVisible(false);
+    }
+    if (
+      userPanelRef.current &&
+      !userPanelRef.current.contains(event.target) &&
+      !userIconRef.current.contains(event.target)
+    ) {
+      setIsUserPanelVisible(false);
+    }
+    if (
+      activeContextMenu !== null &&
+      !event.target.closest(".fa-bars") // Checking if the click is outside the context menu
+    ) {
+      setActiveContextMenu(null);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [handleClickOutside]);
+
+  useEffect(() => {
+    console.log("Setting up Firebase listener");
+    const notificationsRef = ref(database, "dummynotifications");
+    const unsubscribe = onValue(
+      notificationsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        console.log("Fetched notifications: ", data);
+        if (data) {
+          const notificationsArray = Object.entries(data).flatMap(
+            ([parentKey, value]) =>
+              Object.entries(value).map(([id, notification]) => {
+                console.log("Notification data: ", notification); // Log each notification data
+                return {
+                  parentKey, // Store parent key to reference correct path
+                  id,
+                  ...notification,
+                };
+              })
+          );
+          console.log("Parsed notifications array: ", notificationsArray);
+          setNotifications(notificationsArray);
+        } else {
+          setNotifications([]);
+        }
+      },
+      (error) => {
+        console.error("Error fetching notifications:", error);
+        showToast("error", "Failed to fetch notifications.");
+      }
+    );
+
+    return () => unsubscribe(); // Clean up the listener on unmount
+  }, []);
+
+  const handleContextMenuToggle = (id) => {
+    console.log("Context menu toggled for ID:", id);
+    setActiveContextMenu((prev) => (prev === id ? null : id));
+  };
+
+  const markAsRead = (parentKey, id) => {
+    console.log("Mark as read clicked for:", parentKey, id);
+
+    const notification = notifications.find(
+      (notif) => notif.parentKey === parentKey && notif.id === id
+    );
+
+    // Check if the notification is already marked as read
+    if (notification.isRead === "yes") {
+      console.log(`Notification ${id} is already marked as read.`);
+      showToast("warning", "This notification is already marked as read.");
+      setActiveContextMenu(null); // Close the context menu
+      return;
+    }
+
+    const notificationRef = ref(
+      database,
+      `dummynotifications/${parentKey}/${id}`
+    );
+
+    update(notificationRef, { isRead: "yes" })
+      .then(() => {
+        console.log(`Notification ${id} marked as read.`);
+        showToast("success", `Notification successfully marked as read.`);
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((notification) =>
+            notification.parentKey === parentKey && notification.id === id
+              ? { ...notification, isRead: "yes" }
+              : notification
+          )
+        );
+        setActiveContextMenu(null); // Close the context menu after marking as read
+      })
+      .catch((error) => {
+        console.error("Error marking notification as read:", error.message);
+        showToast("error", `Error marking as read: ${error.message}`);
+      });
+  };
+
+  const eraseNotification = (parentKey, id) => {
+    console.log("Erase clicked for:", parentKey, id);
+    const notificationRef = ref(
+      database,
+      `dummynotifications/${parentKey}/${id}`
+    );
+
+    remove(notificationRef)
+      .then(() => {
+        console.log(`Notification ${id} successfully erased from Firebase.`);
+        showToast("success", `Notification removed successfully.`);
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (notification) =>
+              notification.parentKey !== parentKey || notification.id !== id
+          )
+        );
+        // Close only the context menu
+        setActiveContextMenu(null);
+      })
+      .catch((error) => {
+        console.error("Error erasing notification:", error.message);
+        showToast("error", `Error erasing: ${error.message}`);
+      });
+  };
+  const navigate = useNavigate(); // Get the navigate function from the hook
+
+  const handleLogout = () => {
+    // Clear session storage
+    sessionStorage.removeItem("userData");
+
+    // Show a toast message
+    showToast("success", "Successfully logged out. Redirecting....");
+
+    // Use setTimeout to ensure the toast is shown before navigating
+    setTimeout(() => {
+      navigate("/"); // Redirect to the root route
+    }, 100); // Adjust the delay if needed
+  };
+
   return (
-    <header className="empdash-header">
-      <div className="empdash-header-left">
-        <MdOutlineHealthAndSafety className="text-3xl text-gray-600 hover:text-black duration-500" />
+    <header className="sticky h-[60px] left-0 top-0 w-full flex justify-between items-center shadow-md px-5 z-50">
+      <div className="h-full flex items-center gap-3 w-72 justify-center">
+        <i className="ph ph-pulse text-3xl font-bold text-gray-600 cursor-pointer hover:text-black duration-500"></i>
         <h2 className="empdash-header-title text-3xl font-semibold text-gray-600 cursor-pointer hover:text-black duration-500">
           HealthCare
         </h2>
       </div>
-      <div className="empdash-header-right">
-        <div className="empdash-header-right-1">
-          <FiBell
-            className="empdash-header-right-icon"
-            onClick={() => setBellPanelOpen(!bellPanelOpen)}
-          />
+      <div className="flex items-center mr-5">
+        <div ref={bellIconRef} className="relative mr-6">
           <div
-            className={`empdash-bell-panel ${bellPanelOpen ? "show" : ""}`}
-            ref={bellPanelRef}
+            className="w-12 h-12 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer text-gray-600 hover:bg-slate-300 hover:text-black hover:border-transparent duration-500"
+            onClick={toggleBellPanel}
           >
-            <div className="empdash-bell-panel-top">
-              <span>Notification</span>
-              <HiDotsVertical
-                className="empdash-bell-panel-controller"
-                onClick={() => setControllerPanelOpen(!controllerPanelOpen)}
-              />
-              <div
-                className={`empdash-bell-panel-controller-panel ${
-                  controllerPanelOpen ? "show" : ""
-                }`}
-                ref={controllerPanelRef}
-              >
-                <span>
-                  <FiBellOff /> Turn off notification
+            <i className="fa fa-bell text-xl"></i>
+          </div>
+          {isBellPanelVisible && (
+            <div
+              ref={bellPanelRef}
+              className="empdash-bell-panel absolute w-[400px] bg-white shadow-ui-perfect h-[500px] top-[100%] right-0 flex flex-col justify-between"
+            >
+              <div className="sticky flex overflow-hidden justify-between items-center h-12 px-3 border-b-2">
+                <span className="text-lg font-semibold text-gray-700">
+                  Notification
                 </span>
-                <span>
-                  <FiCheckSquare /> Mark all read
-                </span>
-                <span>
-                  <FiTrash2 /> Remove all notification
-                </span>
+              </div>
+              <div className="flex-1 overflow-auto">
+                {notifications.length === 0 ? (
+                  <div className="text-center text-gray-500 py-4">
+                    No notifications available
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`each-notify flex flex-col px-3 py-1 cursor-pointer duration-500 ${
+                        notification.isRead === "no"
+                          ? "bg-slate-300"
+                          : "bg-white"
+                      } hover:bg-slate-200`}
+                    >
+                      <div className="flex flex-row relative justify-between items-center">
+                        <span className="text-base relative text-gray-800">
+                          {notification.title}
+                        </span>
+                        <i
+                          className="fa fa-bars relative text-slate-400 text-xl hover:text-black duration-500 cursor-pointer"
+                          onClick={() =>
+                            handleContextMenuToggle(notification.id)
+                          }
+                        ></i>
+                        {activeContextMenu === notification.id && (
+                          <div className="absolute top-[100%] right-0 bg-white shadow-ui-bold w-auto h-auto z-10">
+                            <div
+                              className="flex flex-row items-center gap-2 px-3 py-2 hover:bg-slate-300 group duration-500"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                markAsRead(
+                                  notification.parentKey,
+                                  notification.id
+                                );
+                              }}
+                            >
+                              <i className="fa-solid fa-envelope-open-text text-slate-500 group-hover:text-black"></i>
+                              <span className="text-slate-500 font-medium group-hover:text-black">
+                                Mark as read
+                              </span>
+                            </div>
+                            <div
+                              className="flex flex-row items-center gap-2 px-3 py-2 hover:bg-slate-300 group duration-500"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                eraseNotification(
+                                  notification.parentKey,
+                                  notification.id
+                                );
+                              }}
+                            >
+                              <i className="fa-solid fa-eraser text-slate-500 group-hover:text-black"></i>
+                              <span className="text-slate-500 font-medium group-hover:text-black">
+                                Erase this notification
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-700">
+                        {notification.body}
+                      </span>
+                      <div className="flex flex-row justify-between">
+                        <span className="text-sm text-gray-500">
+                          {notification.time}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {notification.date}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="h-10 border-t-2">
+                <Link
+                  to="/"
+                  className="flex items-center justify-center w-full h-full text-lg font-semibold text-gray-600 hover:text-black duration-500"
+                >
+                  All Notifications
+                </Link>
               </div>
             </div>
-            {/* <div className="empdash-bell-panel-middle">
-              <div className="empdash-bell-panel-middle-body">
-                <div className="empdash-notify-title">
-                  <span>You got a mail</span>
-                  <HiDotsVertical
-                    className="empdash-notify-title-control"
-                    onClick={() =>
-                      setNotifyTitleControlPanelOpen(
-                        !notifyTitleControlPanelOpen
-                      )
-                    }
-                  />
-                  <div
-                    className={`empdash-notify-title-control-panel ${
-                      notifyTitleControlPanelOpen ? "show" : ""
-                    }`}
-                    ref={notifyTitleControlPanelRef}
-                  >
-                    <span>
-                      <FiCheckSquare /> Mark as read
-                    </span>
-                    <span>
-                      <FiTrash2 /> Remove notification
-                    </span>
-                  </div>
-                </div>
-                <div className="empdash-notify-body">You got a mail</div>
-                <div className="empdash-notify-timestamp">
-                  <span className="empdash-notify-date">date</span>
-                  <span className="empdash-notify-time">time</span>
-                </div>
-              </div>
-            </div> */}
-            {/* <div className="empdash-bell-panel-bottom">
-              <span>Notification</span>
-            </div> */}
-          </div>
+          )}
         </div>
-        <div className="empdash-header-right-2">
-          <FiUser className="empdash-header-right-icon" />
+
+        {/* User Icon */}
+        <div ref={userIconRef} className="relative mr-6">
+          <div
+            className="w-12 h-12 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer text-gray-600 hover:bg-slate-300 hover:text-black hover:border-transparent duration-500"
+            onClick={toggleUserPanel}
+          >
+            <i className="fa fa-user text-xl"></i>
+          </div>
+          {isUserPanelVisible && (
+            <div
+              ref={userPanelRef}
+              className="empdash-user-panel absolute w-[300px] bg-white shadow-ui-bold h-auto top-[100%] right-0"
+            >
+              <div className="flex flex-col p-3 border-b border-gray-300">
+                <span className="text-xl font-medium text-slate-700">
+                  user full name
+                </span>
+                <span className="text-base font-normal text-slate-600">
+                  user role
+                </span>
+              </div>
+              <div className="flex flex-col mt-1">
+                <ul>
+                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                    <Link
+                      to="#"
+                      className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                    >
+                      <i class="ph ph-gear text-lg"></i>Profile Settings
+                    </Link>
+                  </li>
+                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                    <Link
+                      to="#"
+                      className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                    >
+                      <i class="ph ph-shield-plus text-lg"></i>Security and
+                      privacy
+                    </Link>
+                  </li>
+                  <li className="p-3 cursor-pointer hover:bg-slate-300">
+                    <Link
+                      to="#"
+                      onClick={handleLogout}
+                      className="flex flex-row items-center gap-2 text-basee font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
+                    >
+                      <i class="bx bx-log-out-circle text-lg"></i>Log out
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      {/* Toast component */}
+      {toastVisible && (
+        <Toast
+          type={toastType}
+          message={toastMessage}
+          onClose={() => setToastVisible(false)}
+        />
+      )}
     </header>
   );
 };
