@@ -9,7 +9,7 @@
 
 // App.js or App.jsx
 import React from "react";
-import AppRoutes from "./Route"; // Ensure this is the correct path to your routes file
+import AppRoutes from "./Route";
 
 const App = () => {
   return <AppRoutes />;

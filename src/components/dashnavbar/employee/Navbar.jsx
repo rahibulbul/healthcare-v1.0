@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { database } from "../../../lib/firebaseConfig";
 import { ref, onValue, update, remove } from "firebase/database";
@@ -9,6 +9,7 @@ const EmployeeNavbar = () => {
   const [isUserPanelVisible, setIsUserPanelVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [activeContextMenu, setActiveContextMenu] = useState(null);
+  const [userFullName, setUserFullName] = useState("");
 
   const bellPanelRef = useRef(null);
   const bellIconRef = useRef(null);
@@ -28,74 +29,89 @@ const EmployeeNavbar = () => {
     }, 2000);
   };
 
-  console.log("EmployeeNavbar component is rendering");
+  useEffect(() => {
+    const userData = JSON.parse(sessionStorage.getItem("userData"));
+    if (userData && userData.userType && userData.id) {
+      const userRef = ref(database, `${userData.userType}/${userData.id}`);
+      onValue(
+        userRef,
+        (snapshot) => {
+          const data = snapshot.val();
+          if (data && data.fullName) {
+            setUserFullName(data.fullName);
+          } else {
+            showToast("error", "Failed to fetch user full name.");
+          }
+        },
+        (error) => {
+          showToast("error", "Error fetching user data.");
+        }
+      );
+    } else {
+      showToast("error", "User not logged in or user data is missing.");
+    }
+  }, []);
 
   useEffect(() => {
-    console.log("Setting up Firebase listener");
     const notificationsRef = ref(database, "dummynotifications");
     const unsubscribe = onValue(
       notificationsRef,
       (snapshot) => {
         const data = snapshot.val();
-        console.log("Fetched notifications: ", data);
         if (data) {
           const notificationsArray = Object.entries(data).flatMap(
             ([parentKey, value]) =>
               Object.entries(value).map(([id, notification]) => ({
-                parentKey, // Store parent key to reference correct path
+                parentKey,
                 id,
                 ...notification,
               }))
           );
-          console.log("Parsed notifications array: ", notificationsArray);
           setNotifications(notificationsArray);
         } else {
           setNotifications([]);
         }
       },
       (error) => {
-        console.error("Error fetching notifications:", error);
         showToast("error", "Failed to fetch notifications.");
       }
     );
 
-    return () => unsubscribe(); // Clean up the listener on unmount
+    return () => unsubscribe();
   }, []);
 
   const toggleBellPanel = () => {
-    console.log("Bell panel toggled");
     setIsBellPanelVisible((prev) => !prev);
     setIsUserPanelVisible(false);
   };
 
   const toggleUserPanel = () => {
-    console.log("User panel toggled");
     setIsUserPanelVisible((prev) => !prev);
     setIsBellPanelVisible(false);
   };
-  const handleClickOutside = (event) => {
-    // Stop the event from propagating when interacting with the context menu
-    if (
-      bellPanelRef.current &&
-      !bellPanelRef.current.contains(event.target) &&
-      !bellIconRef.current.contains(event.target)
-    ) {
-      setIsBellPanelVisible(false);
-    }
-    if (
-      userPanelRef.current &&
-      !userPanelRef.current.contains(event.target) &&
-      !userIconRef.current.contains(event.target)
-    ) {
-      setIsUserPanelVisible(false);
-    }
-    if (
-      activeContextMenu !== null &&
-      !event.target.closest(".fa-bars") // Checking if the click is outside the context menu
-    ) {
-      setActiveContextMenu(null);
-    }
-  };
+
+  const handleClickOutside = useCallback(
+    (event) => {
+      if (
+        bellPanelRef.current &&
+        !bellPanelRef.current.contains(event.target) &&
+        !bellIconRef.current.contains(event.target)
+      ) {
+        setIsBellPanelVisible(false);
+      }
+      if (
+        userPanelRef.current &&
+        !userPanelRef.current.contains(event.target) &&
+        !userIconRef.current.contains(event.target)
+      ) {
+        setIsUserPanelVisible(false);
+      }
+      if (activeContextMenu !== null && !event.target.closest(".fa-bars")) {
+        setActiveContextMenu(null);
+      }
+    },
+    [activeContextMenu]
+  );
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
@@ -104,58 +120,18 @@ const EmployeeNavbar = () => {
     };
   }, [handleClickOutside]);
 
-  useEffect(() => {
-    console.log("Setting up Firebase listener");
-    const notificationsRef = ref(database, "dummynotifications");
-    const unsubscribe = onValue(
-      notificationsRef,
-      (snapshot) => {
-        const data = snapshot.val();
-        console.log("Fetched notifications: ", data);
-        if (data) {
-          const notificationsArray = Object.entries(data).flatMap(
-            ([parentKey, value]) =>
-              Object.entries(value).map(([id, notification]) => {
-                console.log("Notification data: ", notification); // Log each notification data
-                return {
-                  parentKey, // Store parent key to reference correct path
-                  id,
-                  ...notification,
-                };
-              })
-          );
-          console.log("Parsed notifications array: ", notificationsArray);
-          setNotifications(notificationsArray);
-        } else {
-          setNotifications([]);
-        }
-      },
-      (error) => {
-        console.error("Error fetching notifications:", error);
-        showToast("error", "Failed to fetch notifications.");
-      }
-    );
-
-    return () => unsubscribe(); // Clean up the listener on unmount
-  }, []);
-
   const handleContextMenuToggle = (id) => {
-    console.log("Context menu toggled for ID:", id);
     setActiveContextMenu((prev) => (prev === id ? null : id));
   };
 
   const markAsRead = (parentKey, id) => {
-    console.log("Mark as read clicked for:", parentKey, id);
-
     const notification = notifications.find(
       (notif) => notif.parentKey === parentKey && notif.id === id
     );
 
-    // Check if the notification is already marked as read
     if (notification.isRead === "yes") {
-      console.log(`Notification ${id} is already marked as read.`);
       showToast("warning", "This notification is already marked as read.");
-      setActiveContextMenu(null); // Close the context menu
+      setActiveContextMenu(null);
       return;
     }
 
@@ -166,7 +142,6 @@ const EmployeeNavbar = () => {
 
     update(notificationRef, { isRead: "yes" })
       .then(() => {
-        console.log(`Notification ${id} marked as read.`);
         showToast("success", `Notification successfully marked as read.`);
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) =>
@@ -175,16 +150,14 @@ const EmployeeNavbar = () => {
               : notification
           )
         );
-        setActiveContextMenu(null); // Close the context menu after marking as read
+        setActiveContextMenu(null);
       })
       .catch((error) => {
-        console.error("Error marking notification as read:", error.message);
         showToast("error", `Error marking as read: ${error.message}`);
       });
   };
 
   const eraseNotification = (parentKey, id) => {
-    console.log("Erase clicked for:", parentKey, id);
     const notificationRef = ref(
       database,
       `dummynotifications/${parentKey}/${id}`
@@ -192,7 +165,6 @@ const EmployeeNavbar = () => {
 
     remove(notificationRef)
       .then(() => {
-        console.log(`Notification ${id} successfully erased from Firebase.`);
         showToast("success", `Notification removed successfully.`);
         setNotifications((prevNotifications) =>
           prevNotifications.filter(
@@ -200,27 +172,21 @@ const EmployeeNavbar = () => {
               notification.parentKey !== parentKey || notification.id !== id
           )
         );
-        // Close only the context menu
         setActiveContextMenu(null);
       })
       .catch((error) => {
-        console.error("Error erasing notification:", error.message);
         showToast("error", `Error erasing: ${error.message}`);
       });
   };
-  const navigate = useNavigate(); // Get the navigate function from the hook
+
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear session storage
     sessionStorage.removeItem("userData");
-
-    // Show a toast message
     showToast("success", "Successfully logged out. Redirecting....");
-
-    // Use setTimeout to ensure the toast is shown before navigating
     setTimeout(() => {
-      navigate("/"); // Redirect to the root route
-    }, 100); // Adjust the delay if needed
+      navigate("/");
+    }, 100);
   };
 
   return (
@@ -242,7 +208,7 @@ const EmployeeNavbar = () => {
           {isBellPanelVisible && (
             <div
               ref={bellPanelRef}
-              className="empdash-bell-panel absolute w-[400px] bg-white shadow-ui-perfect h-[500px] top-[100%] right-0 flex flex-col justify-between"
+              className="empdash-bell-panel absolute w-[400px] bg-white shadow-ui-bold h-[500px] top-[100%] right-0 flex flex-col justify-between"
             >
               <div className="sticky flex overflow-hidden justify-between items-center h-12 px-3 border-b-2">
                 <span className="text-lg font-semibold text-gray-700">
@@ -350,11 +316,11 @@ const EmployeeNavbar = () => {
               className="empdash-user-panel absolute w-[300px] bg-white shadow-ui-bold h-auto top-[100%] right-0"
             >
               <div className="flex flex-col p-3 border-b border-gray-300">
-                <span className="text-xl font-medium text-slate-700">
-                  user full name
+                <span className="text-xl font-semibold text-slate-700">
+                  {userFullName || "User Full Name"}
                 </span>
                 <span className="text-base font-normal text-slate-600">
-                  user role
+                  user role {/* This will be updated later */}
                 </span>
               </div>
               <div className="flex flex-col mt-1">
@@ -364,7 +330,7 @@ const EmployeeNavbar = () => {
                       to="#"
                       className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
-                      <i class="ph ph-gear text-lg"></i>Profile Settings
+                      <i className="ph ph-gear text-lg"></i>Profile Settings
                     </Link>
                   </li>
                   <li className="p-3 cursor-pointer hover:bg-slate-300">
@@ -372,7 +338,7 @@ const EmployeeNavbar = () => {
                       to="#"
                       className="flex flex-row items-center gap-2 text-base font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
-                      <i class="ph ph-shield-plus text-lg"></i>Security and
+                      <i className="ph ph-shield-plus text-lg"></i>Security and
                       privacy
                     </Link>
                   </li>
@@ -382,7 +348,7 @@ const EmployeeNavbar = () => {
                       onClick={handleLogout}
                       className="flex flex-row items-center gap-2 text-basee font-medium text-slate-600 hover:ml-3 hover:text-black duration-500"
                     >
-                      <i class="bx bx-log-out-circle text-lg"></i>Log out
+                      <i className="bx bx-log-out-circle text-lg"></i>Log out
                     </Link>
                   </li>
                 </ul>
