@@ -1,0 +1,240 @@
+.empdash-header {
+    position: sticky;
+    height: 60px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    font-family: var(--font-poppins);
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.empdash-header-left {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 300px;
+    justify-content: center;
+    position: relative;
+}
+
+.empdash-header-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-right: 20px;
+    position: relative;
+}
+
+.empdash-header-right-icon {
+    height: 100%;
+    width: 100%;
+    font-size: 20px;
+    border: solid 1px transparent;
+    border-radius: 50%;
+    padding: 10px;
+    background-color: #dfdfdf;
+    position: relative;
+    cursor: pointer;
+    transition: 0.6s;
+
+    &:hover {
+        background-color: rgb(190, 190, 190);
+        color: black;
+    }
+}
+
+.empdash-header-right-1 {
+    position: relative;
+}
+
+.empdash-bell-panel {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    width: 400px;
+    height: 400px;
+    max-height: 550px;
+    background-color: white;
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+    z-index: 100;
+}
+
+.empdash-bell-panel.show {
+    display: flex;
+}
+
+.empdash-bell-panel-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    height: 50px;
+    width: 400px;
+    background-color: white;
+    border-bottom: solid 1px #dfdfdf;
+    overflow: hidden;
+    z-index: 1002;
+}
+
+.empdash-bell-panel-controller {
+    position: relative;
+}
+
+.empdash-bell-panel-controller-panel {
+    display: none;
+}
+
+.empdash-bell-panel-controller-panel.show {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    width: auto;
+    height: auto;
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+    z-index: 999999999999999999999999999 !important;
+    /* Increase z-index significantly */
+}
+
+/* 
+.empdash-bell-panel-controller {
+    font-size: 20px;
+    color: #696969;
+    cursor: pointer;
+    transition: 0.6s;
+    position: relative;
+
+    &:hover {
+        color: black;
+    }
+
+}
+
+.empdash-bell-panel-controller-panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    top: 100%;
+    width: auto;
+    height: auto;
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+    z-index: 1003;
+}
+
+.empdash-bell-panel-controller-panel.show {
+    display: flex !important;
+    z-index: 2000;
+}
+
+.empdash-bell-panel-controller-panel span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #696969;
+    transition: 0.6s;
+    font-weight: 500;
+
+    &:hover {
+        color: black;
+        background-color: aquamarine;
+    }
+
+}
+
+.empdash-bell-panel-middle {
+    flex: 1;
+    margin-top: 50px;
+    padding: 5px 10px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.empdash-bell-panel-middle-body {
+    position: relative;
+}
+
+.empdash-notify-title {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.empdash-notify-title-control {
+    position: relative;
+    cursor: pointer;
+}
+
+.empdash-notify-title-control-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+    width: auto;
+    height: auto;
+}
+
+.empdash-notify-title-control-panel span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #696969;
+    transition: 0.6s;
+    font-weight: 500;
+
+    &:hover {
+        color: black;
+        background-color: aquamarine;
+    }
+}
+
+.empdash-notify-title-control-panel.show {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+    z-index: 1003;
+}
+
+.empdash-notify-body {
+    font-size: 13px;
+}
+
+.empdash-notify-timestamp {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    span {
+        font-size: 12px;
+    }
+}
+
+.empdash-bell-panel-bottom {
+    height: 50px;
+    overflow: hidden;
+} */

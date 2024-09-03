@@ -9,11 +9,12 @@ import Login from "./pages/public/login/Login";
 import Registration from "./pages/public/registration/Registration";
 import Newuser from "./pages/public/newuser/Newuser";
 // Components
-import Navbar from "./components/dashnavbar/Navbar";
+import Navbar from "./components/navbar/Navbar";
 
 // Employee Dashboard
 import EmployeeDashboard from "./pages/dashboard/employee/home/Home";
 import EmployeeInsurance from "./pages/dashboard/employee/insurance/insurance";
+import EmployeeNavbar from "./components/dashnavbar/employee/Navbar";
 
 // Patient Dashboard
 import PatientDashboard from "./pages/dashboard/patient/home/Home";
@@ -45,6 +46,7 @@ const NoFooterLayout = ({ children }) => (
 const DashboardLayout = ({ children }) => (
   <>
     <ScrollToTop />
+    <EmployeeNavbar />
     {children}
   </>
 );
