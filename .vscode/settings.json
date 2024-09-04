@@ -1,11 +1,22 @@
 {
   "cSpell.words": [
+    "accountstatus",
     "agentdashboard",
     "doctordashboard",
+    "doctornumber",
+    "dummyevents",
+    "dummynetexpense",
     "dummynotifications",
     "empdash",
+    "Fullname",
+    "insurancepaid",
+    "medicalhistory",
+    "medicalreport",
+    "netincome",
     "Newuser",
+    "nhsnumber",
     "patientdashboard",
-    "testname"
+    "testname",
+    "totalinsurancepaid"
   ]
 }

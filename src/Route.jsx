@@ -55,13 +55,13 @@ const EmployeeDashboardLayout = ({ children }) => {
   return (
     <>
       <ScrollToTop />
-      <div className="flex flex-col w-full h-auto">
+      <div className="flex flex-col w-full h-auto overflow-hidden">
         <EmployeeNavbar />
         <div className="flex flex-row w-full gap-2 h-aut0">
           <div className=" flex w-15 md:w-72 max-w-[300px] h-[calc(100vh_-_60px)]">
             <EmployeeSidebar />
           </div>
-          <div className="flex-1 h-[calc(100vh_-_60px)]">{children}</div>
+          <div className="flex-1 h-[calc(100vh_-_60px)] overflow-y-auto">{children}</div>
         </div>
       </div>
     </>

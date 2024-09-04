@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { database } from "../../../lib/firebaseConfig";
-import { ref, onValue, update, remove } from "firebase/database";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Toast from "../../../components/toast/Toast";
+import {
+  fetchUsername,
+  fetchDummyNotifications,
+  eraseNotification as eraseNotificationService,
+  markReadNotification,
+} from "../../../api/authService"; // New imports
 
 const EmployeeNavbar = () => {
+  const location = useLocation();
   const [isBellPanelVisible, setIsBellPanelVisible] = useState(false);
   const [isUserPanelVisible, setIsUserPanelVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -30,53 +35,13 @@ const EmployeeNavbar = () => {
   };
 
   useEffect(() => {
-    const userData = JSON.parse(sessionStorage.getItem("userData"));
-    if (userData && userData.userType && userData.id) {
-      const userRef = ref(database, `${userData.userType}/${userData.id}`);
-      onValue(
-        userRef,
-        (snapshot) => {
-          const data = snapshot.val();
-          if (data && data.fullName) {
-            setUserFullName(data.fullName);
-          } else {
-            showToast("error", "Failed to fetch user full name.");
-          }
-        },
-        (error) => {
-          showToast("error", "Error fetching user data.");
-        }
-      );
-    } else {
-      showToast("error", "User not logged in or user data is missing.");
-    }
+    fetchUsername(showToast).then((fullName) => {
+      if (fullName) setUserFullName(fullName);
+    });
   }, []);
 
   useEffect(() => {
-    const notificationsRef = ref(database, "dummynotifications");
-    const unsubscribe = onValue(
-      notificationsRef,
-      (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const notificationsArray = Object.entries(data).flatMap(
-            ([parentKey, value]) =>
-              Object.entries(value).map(([id, notification]) => ({
-                parentKey,
-                id,
-                ...notification,
-              }))
-          );
-          setNotifications(notificationsArray);
-        } else {
-          setNotifications([]);
-        }
-      },
-      (error) => {
-        showToast("error", "Failed to fetch notifications.");
-      }
-    );
-
+    const unsubscribe = fetchDummyNotifications(setNotifications, showToast);
     return () => unsubscribe();
   }, []);
 
@@ -124,59 +89,19 @@ const EmployeeNavbar = () => {
     setActiveContextMenu((prev) => (prev === id ? null : id));
   };
 
-  const markAsRead = (parentKey, id) => {
-    const notification = notifications.find(
-      (notif) => notif.parentKey === parentKey && notif.id === id
-    );
-
-    if (notification.isRead === "yes") {
-      showToast("warning", "This notification is already marked as read.");
-      setActiveContextMenu(null);
-      return;
-    }
-
-    const notificationRef = ref(
-      database,
-      `dummynotifications/${parentKey}/${id}`
-    );
-
-    update(notificationRef, { isRead: "yes" })
-      .then(() => {
-        showToast("success", `Notification successfully marked as read.`);
-        setNotifications((prevNotifications) =>
-          prevNotifications.map((notification) =>
-            notification.parentKey === parentKey && notification.id === id
-              ? { ...notification, isRead: "yes" }
-              : notification
-          )
-        );
-        setActiveContextMenu(null);
-      })
-      .catch((error) => {
-        showToast("error", `Error marking as read: ${error.message}`);
-      });
+  const handleEraseNotification = (parentKey, id) => {
+    eraseNotificationService(parentKey, id, setNotifications, showToast, setActiveContextMenu);
   };
 
-  const eraseNotification = (parentKey, id) => {
-    const notificationRef = ref(
-      database,
-      `dummynotifications/${parentKey}/${id}`
+  const handleMarkAsRead = (parentKey, id) => {
+    markReadNotification(
+      parentKey,
+      id,
+      notifications,
+      setNotifications,
+      showToast,
+      setActiveContextMenu
     );
-
-    remove(notificationRef)
-      .then(() => {
-        showToast("success", `Notification removed successfully.`);
-        setNotifications((prevNotifications) =>
-          prevNotifications.filter(
-            (notification) =>
-              notification.parentKey !== parentKey || notification.id !== id
-          )
-        );
-        setActiveContextMenu(null);
-      })
-      .catch((error) => {
-        showToast("error", `Error erasing: ${error.message}`);
-      });
   };
 
   const navigate = useNavigate();
@@ -189,15 +114,51 @@ const EmployeeNavbar = () => {
     }, 100);
   };
 
+  const pathMap = {
+    "/employeedashboard": "Dashboard",
+    "/employeedashboard/insurance": "Insurance",
+  };
+
+  const getPageName = (pathname) => {
+    return pathMap[pathname] || "404 Page not found";
+  };
+
+  const createBreadcrumb = (pathname) => {
+    const pathSegments = pathname.split("/").filter(Boolean);
+    return pathSegments.map((segment, index) => {
+      const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
+      return (
+        <span key={path}>
+          <Link to={path} className="text-base font-medium text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2">
+            {getPageName(path)}
+          </Link>
+          {index < pathSegments.length - 1 && " ❯ "}
+        </span>
+      );
+    });
+  };
+  const handleBreadCrumbIconClick = () => {
+    navigate("/employeedashboard");
+  }
+
+  const currentPath = location.pathname;
+  const breadcrumb = createBreadcrumb(currentPath);
+
   return (
     <header className="sticky h-[60px] left-0 top-0 w-full flex justify-between items-center shadow-md px-5 z-50">
-      <div className="h-full flex items-center gap-3 w-72 justify-center">
-        <i className="ph ph-pulse text-3xl font-bold text-gray-600 cursor-pointer hover:text-black duration-500"></i>
-        <h2 className="empdash-header-title text-3xl font-semibold text-gray-600 cursor-pointer hover:text-black duration-500">
-          HealthCare
-        </h2>
+      <div className="h-full flex items-center gap-3 justify-center">
+        <div className="flex flex-row w-64 justify-center">
+          <i className="ph ph-pulse text-3xl font-bold text-gray-600 cursor-pointer hover:text-black duration-500"></i>
+          <h2 className="empdash-header-title text-3xl font-semibold text-gray-600 cursor-pointer hover:text-black duration-500">
+            HealthCare
+          </h2>
+        </div>
+        <div className="flex flex-row items-center">
+          <i class="ph ph-house-simple text-xl font-semibold cursor-pointer text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2" onClick={handleBreadCrumbIconClick}></i>
+          <span className="">❯{breadcrumb}</span>
+        </div>
       </div>
-      <div className="flex items-center mr-5">
+      <div className="flex items-center mr-5" >
         <div ref={bellIconRef} className="relative mr-6">
           <div
             className="w-12 h-12 border-2 border-gray-300 rounded-full flex items-center justify-center cursor-pointer text-gray-600 hover:bg-slate-300 hover:text-black hover:border-transparent duration-500"
@@ -224,11 +185,10 @@ const EmployeeNavbar = () => {
                   notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`each-notify flex flex-col px-3 py-1 cursor-pointer duration-500 ${
-                        notification.isRead === "no"
-                          ? "bg-slate-300"
-                          : "bg-white"
-                      } hover:bg-slate-200`}
+                      className={`each-notify flex flex-col px-3 py-1 cursor-pointer duration-500 ${notification.isRead === "no"
+                        ? "bg-slate-300"
+                        : "bg-white"
+                        } hover:bg-slate-200`}
                     >
                       <div className="flex flex-row relative justify-between items-center">
                         <span className="text-base relative text-gray-800">
@@ -246,7 +206,7 @@ const EmployeeNavbar = () => {
                               className="flex flex-row items-center gap-2 px-3 py-2 hover:bg-slate-300 group duration-500"
                               onClick={(event) => {
                                 event.stopPropagation();
-                                markAsRead(
+                                handleMarkAsRead(
                                   notification.parentKey,
                                   notification.id
                                 );
@@ -261,7 +221,7 @@ const EmployeeNavbar = () => {
                               className="flex flex-row items-center gap-2 px-3 py-2 hover:bg-slate-300 group duration-500"
                               onClick={(event) => {
                                 event.stopPropagation();
-                                eraseNotification(
+                                handleEraseNotification(
                                   notification.parentKey,
                                   notification.id
                                 );
