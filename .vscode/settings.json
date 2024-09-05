@@ -10,13 +10,17 @@
     "empdash",
     "Fullname",
     "insurancepaid",
+    "insurancestartdate",
+    "lastsmoke",
     "medicalhistory",
     "medicalreport",
     "netincome",
     "Newuser",
+    "nhsnum",
     "nhsnumber",
     "patientdashboard",
     "testname",
-    "totalinsurancepaid"
+    "totalinsurancepaid",
+    "userid"
   ]
 }

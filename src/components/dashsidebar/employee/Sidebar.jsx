@@ -44,6 +44,12 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li>
+                        <Link to="/employeedashboard/patients" className={`emp-links ${location.pathname === "/employeedashboard/patients" ? "emp-sidebar-active" : ""}}`}>
+                            <i class="ph ph-users"></i>
+                            Patients
+                        </Link>
+                    </li>
+                    <li>
                         <Link
                             to="/employeedashboard/insurance"
                             className={`emp-links ${location.pathname === "/employeedashboard/insurance"
@@ -53,12 +59,6 @@ const Sidebar = () => {
                         >
                             <i class="ph ph-umbrella-simple"></i>
                             Insurance
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="emp-links">
-                            <i class="ph ph-users"></i>
-                            Users
                         </Link>
                     </li>
                     <li>

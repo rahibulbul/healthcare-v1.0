@@ -275,7 +275,12 @@ const EmployeeDashboard = () => {
           </div>
         </div>
       </div>
-      <div className=""></div>
+      <div className="flex flex-row mt-5 w-full h-[600px] justify-between gap-3">
+        <div className="w-full h-[600px] p-5 border-2 border-slate-200 rounded-lg">
+          <h2 className="text-2xl mb-2 font-semibold text-slate-700">Insurance Details</h2>
+        </div>
+        <div className="w-full h-[600px] p-5 border-2 border-slate-200 rounded-lg"></div>
+      </div>
 
       {toastVisible && (
         <Toast

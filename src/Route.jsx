@@ -16,6 +16,7 @@ import EmployeeDashboard from "./pages/dashboard/employee/home/Home";
 import EmployeeInsurance from "./pages/dashboard/employee/insurance/insurance";
 import EmployeeNavbar from "./components/dashnavbar/employee/Navbar";
 import EmployeeSidebar from "./components/dashsidebar/employee/Sidebar";
+import EmployeePatients from "./pages/dashboard/employee/patients/Patients";
 // Patient Dashboard
 import PatientDashboard from "./pages/dashboard/patient/home/Home";
 
@@ -135,6 +136,7 @@ const AppRoutes = () => (
               <Routes>
                 <Route index element={<EmployeeDashboard />} />
                 <Route path="insurance" element={<EmployeeInsurance />} />
+                <Route path="patients" element={<EmployeePatients />} />
                 {/* Additional routes can be added here */}
               </Routes>
             </EmployeeDashboardLayout>

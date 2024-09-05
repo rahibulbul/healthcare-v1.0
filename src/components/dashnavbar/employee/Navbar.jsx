@@ -105,7 +105,6 @@ const EmployeeNavbar = () => {
   };
 
   const navigate = useNavigate();
-
   const handleLogout = () => {
     sessionStorage.removeItem("userData");
     showToast("success", "Successfully logged out. Redirecting....");
@@ -113,23 +112,43 @@ const EmployeeNavbar = () => {
       navigate("/");
     }, 100);
   };
-
+  const [activeLink, setactiveLink] = useState();
   const pathMap = {
     "/employeedashboard": "Dashboard",
     "/employeedashboard/insurance": "Insurance",
+    "/employeedashboard/patients": "Patients",
   };
 
   const getPageName = (pathname) => {
     return pathMap[pathname] || "404 Page not found";
   };
 
+  // const createBreadcrumb = (pathname) => {
+  //   const pathSegments = pathname.split("/").filter(Boolean);
+  //   return pathSegments.map((segment, index) => {
+  //     const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
+  //     return (
+  //       <span key={path}>
+  //         <Link to={path} className={`text-base font-medium text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2`}>
+  //           {getPageName(path)}
+  //         </Link>
+  //         {index < pathSegments.length - 1 && " ❯ "}
+  //       </span>
+  //     );
+  //   });
+  // };
   const createBreadcrumb = (pathname) => {
     const pathSegments = pathname.split("/").filter(Boolean);
     return pathSegments.map((segment, index) => {
       const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
+      const isActive = path === location.pathname; // Check if the current path matches
       return (
         <span key={path}>
-          <Link to={path} className="text-base font-medium text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2">
+          <Link
+            to={path}
+            className={`text-base font-medium text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2 ${isActive ? "bg-slate-700 text-white" : ""
+              }`}
+          >
             {getPageName(path)}
           </Link>
           {index < pathSegments.length - 1 && " ❯ "}
@@ -137,6 +156,7 @@ const EmployeeNavbar = () => {
       );
     });
   };
+
   const handleBreadCrumbIconClick = () => {
     navigate("/employeedashboard");
   }
@@ -155,7 +175,7 @@ const EmployeeNavbar = () => {
         </div>
         <div className="flex flex-row items-center">
           <i class="ph ph-house-simple text-xl font-semibold cursor-pointer text-slate-700 hover:bg-slate-700 hover:text-white duration-500 rounded-md p-2" onClick={handleBreadCrumbIconClick}></i>
-          <span className="">❯{breadcrumb}</span>
+          <span className=""> ❯ {breadcrumb}</span>
         </div>
       </div>
       <div className="flex items-center mr-5" >
